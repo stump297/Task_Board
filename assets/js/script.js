@@ -70,7 +70,16 @@ function DeleteTask(event) {
 }
 
 // create a function to handle dropping a task into a new status lane
-function handleDrop(event, ui) {}
+function handleDrop(event, ui) {
+  function handleDrop(event, ui) {
+    const taskId = ui.draggable.data("id");
+    const newStatus = $(this).closest(".column").attr("id");
+    const task = taskList.find((task) => task.id === taskId);
+    task.status = newStatus;
+    localStorage.setItem("tasks", JSON.stringify(taskList));
+    renderTaskList();
+  }
+}
 
 // when the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
 $(document).ready(function () {});
