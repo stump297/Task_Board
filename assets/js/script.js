@@ -46,7 +46,18 @@ function renderTaskList() {
 }
 
 // create a function to handle adding a new task
-function handleAddTask(event) {}
+function handleAddTask(event) {
+  event.preventDefault();
+  const newTask = {
+    id: generateTaskId(),
+    title: $("#title").val(),
+    status: "not started",
+  };
+  taskList.push(newTask);
+  localStorage.setItem("tasks", JSON.stringify(taskList));
+  renderTaskList();
+  $("#task-modal").hide();
+}
 
 // create a function to handle deleting a task
 function handleDeleteTask(event) {}
