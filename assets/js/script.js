@@ -30,8 +30,20 @@ if (dayjs(task.deadline).isBefore(dayjs())) {
 
 return taskCard;
 
-// create a function to render the task list and make cards draggable
-function renderTaskList() {}
+// create a function to render the task list
+function renderTaskList() {
+  $(".task-list").emptiy();
+  taskList.forEach((task) => {
+    const taskCard = crateTaskCard(task);
+    $(`#${task.status} .task-list`).append(taskCard);
+  });
+
+  // making the cards draggable
+  $(".task-card").draggable({
+    revert: "invalid",
+    helper: "clone",
+  });
+}
 
 // create a function to handle adding a new task
 function handleAddTask(event) {}
