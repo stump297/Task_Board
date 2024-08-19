@@ -35,16 +35,16 @@
           <div class="modal-body">
             <form id="task-form">
               <div class="mb-3">
-                <label for="title" class="form-label">Title</label>
-                <input type="text" class="form-control" id="title" required>
+                <label for="taskName" class="form-label">Title</label>
+                <input type="text" class="form-control" id="taskName" required>
               </div>
               <div class="mb-3">
-                <label for="description" class="form-label">Description</label>
-                <textarea class="form-control" id="description" rows="3" required></textarea>
+                <label for="taskDescription" class="form-label">Description</label>
+                <textarea class="form-control" id="taskDescription" rows="3" required></textarea>
               </div>
               <div class="mb-3">
-                <label for="deadline" class="form-label">Deadline</label>
-                <input type="date" class="form-control" id="deadline" required>
+                <label for="datepicker" class="form-label">Deadline</label>
+                <input type="date" class="form-control" id="datepicker" required>
               </div>
               <button type="submit" class="btn btn-primary">Save Task</button>
             </form>
@@ -54,32 +54,32 @@
     </div>
     <div class="row swim-lanes text-center justify-content-between">
       <div class="col-12 col-lg-4 d-flex">
-        <div id="to-do" class="card border-light mb-3 lane flex-grow-1">
+        <div class="card border-light mb-3 lane flex-grow-1">
           <div class="card-header bg-white">
             <h2 class="card-title mb-1">To Do</h2>
           </div>
           <div class="card-body bg-light">
-            <div class="task-list"></div>
+            <div id="todo-cards" class="task-list"></div>
           </div>
         </div>
       </div>
       <div class="col-12 col-lg-4 d-flex">
-        <div id="in-progress" class="card border-light mb-3 lane flex-grow-1">
+        <div class="card border-light mb-3 lane flex-grow-1">
           <div class="card-header bg-white">
             <h2 class="card-title mb-1">In Progress</h2>
           </div>
           <div class="card-body bg-light">
-            <div class="task-list"></div>
+            <div id="in-progress-cards" class="task-list"></div>
           </div>
         </div>
       </div>
       <div class="col-12 col-lg-4 d-flex">
-        <div id="done" class="card border-light mb-3 lane flex-grow-1">
+        <div class="card border-light mb-3 lane flex-grow-1">
           <div class="card-header bg-white">
             <h2 class="card-title mb-1">Done</h2>
           </div>
           <div class="card-body bg-light">
-            <div class="task-list"></div>
+            <div id="done-cards" class="task-list"></div>
           </div>
         </div>
       </div>

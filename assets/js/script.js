@@ -1,59 +1,96 @@
-// Retrieve tasks and nextId from localStorage
+// Retrieve tasks from localStorage
 let taskList = JSON.parse(localStorage.getItem("tasks")) || [];
-let nextId = JSON.parse(localStorage.getItem("nextId")) || 1;
 
-// Create a function to generate a unique task id
-function generateTaskId() {
-  const id = nextId;
-  nextId += 1;
-  localStorage.setItem("nextId", JSON.stringify(nextId));
-  return id;
+// Select DOM elements
+const taskName = document.querySelector("#taskName");
+const datePicker = document.querySelector("#datepicker");
+const taskDescription = document.querySelector("#taskDescription");
+const taskSubmitBut = $("#taskSubmit");
+
+// Check if taskList is null and initialize if necessary
+if (taskList === null) {
+  taskList = [];
+} else {
+  taskList = JSON.parse(localStorage.getItem("tasks"));
 }
 
-// Create a function to create a task card
+// Function to generate a unique task id
+function generateTaskId() {
+  return "id" + new Date().getTime();
+}
+
+// Function to create a task card
 function createTaskCard(task) {
-  const taskCard = $(`
-    <div class="task-card" data-id="${task.id}">
-      <h3>${task.title}</h3>
-      <p>${task.description}</p>
-      <p>Deadline: ${task.deadline}</p>
-      <button class="delete-task">Delete</button>
+  let bgColor = "";
+
+  if (dayjs().isSame(dayjs(task.taskDate), "day")) {
+    bgColor = "yellow";
+  } else if (dayjs().isAfter(dayjs(task.taskDate))) {
+    bgColor = "red";
+  }
+
+  const cardObject = $(`
+    <div class="ui-widget-content draggable ${bgColor}" id="${task.uniqID}">
+      <p>${task.taskName}</p>
+      <p>${task.taskDate}</p>
+      <p>${task.taskDescription}</p>
+      <button onclick="handleDeleteTask(event)">Remove</button>
     </div>
   `);
 
-  if (dayjs(task.deadline).isBefore(dayjs())) {
-    taskCard.css("background-color", "red");
-  } else if (dayjs(task.deadline).isBefore(dayjs().add(3, "day"))) {
-    taskCard.css("background-color", "yellow");
+  switch (task.taskStatus) {
+    case "in-progress-cards":
+      $("#in-progress-cards").append(cardObject);
+      break;
+    case "done-cards":
+      $("#done-cards").append(cardObject);
+      cardObject.removeClass("yellow red");
+      break;
+    case "todo-cards":
+      $("#todo-cards").append(cardObject);
+      break;
   }
 
-  return taskCard;
-}
-
-// Create a function to render the task list
-function renderTaskList() {
-  $(".task-list").empty();
-  taskList.forEach((task) => {
-    const taskCard = createTaskCard(task);
-    $(`#${task.status} .task-list`).append(taskCard);
-  });
-
-  // Making the cards draggable
-  $(".task-card").draggable({
+  $(".draggable").draggable({
     revert: "invalid",
+    zIndex: 100,
     helper: "clone",
   });
 }
 
-// Create a function to handle adding a new task
+// Function to render the task list
+function renderTaskList() {
+  $("#todo-cards").empty();
+  $("#in-progress-cards").empty();
+  $("#done-cards").empty();
+
+  taskList.forEach((task) => {
+    createTaskCard(task);
+  });
+
+  $(".task-list")
+    .sortable({
+      connectWith: ".task-list",
+      update: function (event, ui) {
+        const newStatus = $(this).closest(".lane").attr("id").split("-")[0];
+        const taskId = ui.item.attr("id");
+        const task = taskList.find((task) => task.uniqID === taskId);
+        task.taskStatus = newStatus;
+        localStorage.setItem("tasks", JSON.stringify(taskList));
+      },
+    })
+    .disableSelection();
+}
+
+// Function to handle adding a new task
 function handleAddTask(event) {
   event.preventDefault();
   const newTask = {
-    id: generateTaskId(),
-    title: $("#title").val(),
-    description: $("#description").val(),
-    deadline: $("#deadline").val(),
-    status: "to-do",
+    uniqID: generateTaskId(),
+    taskName: taskName.value,
+    taskDate: datePicker.value,
+    taskDescription: taskDescription.value,
+    taskStatus: "todo-cards",
   };
   taskList.push(newTask);
   localStorage.setItem("tasks", JSON.stringify(taskList));
@@ -61,34 +98,41 @@ function handleAddTask(event) {
   $("#formModal").modal("hide");
 }
 
-// Create a function to handle deleting a task
+// Function to handle deleting a task
 function handleDeleteTask(event) {
-  const taskId = $(event.target).closest(".task-card").data("id");
-  taskList = taskList.filter((task) => task.id !== taskId);
+  const taskId = $(event.target).closest(".draggable").attr("id");
+  taskList = taskList.filter((task) => task.uniqID !== taskId);
   localStorage.setItem("tasks", JSON.stringify(taskList));
   renderTaskList();
 }
 
-// Create a function to handle dropping a task into a new status lane
+// Function to handle dropping a task into a new status lane
+
 function handleDrop(event, ui) {
-  console.log("Task dropped"); // Debugging line
-  const taskId = ui.draggable.data("id");
-  const newStatus = $(this).closest(".lane").attr("id");
-  console.log("New status:", newStatus); // Debugging line
-  const task = taskList.find((task) => task.id === taskId);
-  task.status = newStatus;
-  localStorage.setItem("tasks", JSON.stringify(taskList));
+  $(".droppable").droppable({
+    accept: ".draggable",
+    drop: handleDrop,
+    classes: {
+      "ui-droppable-active": "ui-state-active",
+      "ui-droppable-hover": "ui-state-hover",
+    },
+  });
+
+  const taskId = ui.draggable[0].id;
+  const newStatus = event.target.children[0].id;
+  for (let i = 0; i < taskList.length; i++) {
+    if (taskList[i].uniqID === taskId) {
+      taskList[i].taskStatus = newStatus;
+      localStorage.setItem("tasks", JSON.stringify(taskList));
+      break;
+    }
+  }
   renderTaskList();
 }
 
-// When the page loads, render the task list, add event listeners, make lanes droppable, and make the due date field a date picker
+// When the page loads, render the task list and add event listeners
 $(document).ready(function () {
-  if (!taskList) {
-    taskList = [];
-    nextId = 1;
-    localStorage.setItem("tasks", JSON.stringify(taskList));
-    localStorage.setItem("nextId", JSON.stringify(nextId));
-  }
+  $("#datepicker").datepicker();
 
   renderTaskList();
 
@@ -104,10 +148,12 @@ $(document).ready(function () {
 
   $(document).on("click", ".delete-task", handleDeleteTask);
 
-  $(".task-list").droppable({
-    accept: ".task-card",
-    drop: handleDrop,
-  });
-
-  $("#deadline").datepicker();
+  // $(".droppable").droppable({
+  //   accept: ".draggable",
+  //   drop: handleDrop,
+  //   classes: {
+  //     "ui-droppable-active": "ui-state-active",
+  //     "ui-droppable-hover": "ui-state-hover",
+  //   },
+  // });
 });
