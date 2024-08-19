@@ -21,12 +21,12 @@ This is a simple task board application that allows users to add, delete, and ma
 
 ## Usage
 
-Open up the website.
-Click on add task
-Enter the required information when propted
-The task is added to the board
-Drag and drop the tasks from one row to antoher
-Delte tasks when complete
++ Open up the website.  https://stump297.github.io/Task_Board/  
++ Click on add task
++ Enter the required information when propted
++ The task is added to the board
++ Drag and drop the tasks from one row to antoher
++ Delte tasks when complete
 
 ## License
 MIT License
